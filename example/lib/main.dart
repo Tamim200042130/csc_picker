@@ -21,9 +21,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title ?? 'CSC Picker'),
       ),
       body: Center(
         child: Container(
@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   showCities: true,
 
                   ///Enable (get flag with country name) / Disable (Disable flag) / ShowInDropdownOnly (display flag in dropdown only) [OPTIONAL PARAMETER]
-                  flagState: CountryFlag.DISABLE,
+                  flagState: CountryFlag.ENABLE,
 
                   ///Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER] (USE with disabledDropdownDecoration)
                   dropdownDecoration: BoxDecoration(
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ///defaultCountry: CscCountry.India,
 
                   ///Country Filter [OPTIONAL PARAMETER]
-                  countryFilter: [CscCountry.India,CscCountry.United_States,CscCountry.Canada],
+                  // countryFilter: [CscCountry.India,CscCountry.United_States,CscCountry.Canada],
 
                   ///Disable country dropdown (Note: use it with default country)
                   //disableCountry: true,
@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onCountryChanged: (value) {
                     setState(() {
                       ///store value in country variable
-                      countryValue = value;
+                      countryValue = value ?? "";
                     });
                   },
 
@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onStateChanged: (value) {
                     setState(() {
                       ///store value in state variable
-                      stateValue = value;
+                      stateValue = value ?? "";
                     });
                   },
 
@@ -138,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onCityChanged: (value) {
                     setState(() {
                       ///store value in city variable
-                      cityValue = value;
+                      cityValue = value ?? "";
                     });
                   },
 

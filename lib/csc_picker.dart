@@ -4,6 +4,7 @@ import 'package:csc_picker/dropdown_with_search.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'model/select_status_model.dart';
 
 enum Layout { vertical, horizontal }
@@ -617,18 +618,19 @@ class CSCPickerState extends State<CSCPicker> {
   }
 
   Future<void> setDefaults() async {
-    if (widget.currentCountry != null) {
-      setState(() => _selectedCountry = widget.currentCountry);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('selectedCountry')) {
+      setState(() => _selectedCountry = prefs.getString('selectedCountry'));
       await getStates();
     }
 
-    if (widget.currentState != null) {
-      setState(() => _selectedState = widget.currentState!);
+    if (prefs.containsKey('selectedState')) {
+      setState(() => _selectedState = prefs.getString('selectedState')!);
       await getCities();
     }
 
-    if (widget.currentCity != null) {
-      setState(() => _selectedCity = widget.currentCity!);
+    if (prefs.containsKey('selectedCity')) {
+      setState(() => _selectedCity = prefs.getString('selectedCity')!);
     }
   }
 
@@ -637,6 +639,20 @@ class CSCPickerState extends State<CSCPicker> {
       print(_country[Countries[widget.defaultCountry]!]);
       _onSelectedCountry(_country[Countries[widget.defaultCountry]!]!);
     }
+  }
+
+  Future<void> _saveSelectedValues() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedCountry', _selectedCountry ?? '');
+    await prefs.setString('selectedState', _selectedState);
+    await prefs.setString('selectedCity', _selectedCity);
+  }
+
+  Future<void> _clearSelectedValues() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selectedCountry');
+    await prefs.remove('selectedState');
+    await prefs.remove('selectedCity');
   }
 
   ///Read JSON country data from assets
@@ -774,6 +790,7 @@ class CSCPickerState extends State<CSCPicker> {
         this.widget.onCityChanged!(_selectedCity);
       }
     });
+    _saveSelectedValues();
   }
 
   void _onSelectedState(String value) {
@@ -791,6 +808,7 @@ class CSCPickerState extends State<CSCPicker> {
         this.widget.onCityChanged!(_selectedCity);
       }
     });
+    _saveSelectedValues();
   }
 
   void _onSelectedCity(String value) {
@@ -802,6 +820,7 @@ class CSCPickerState extends State<CSCPicker> {
         this.widget.onCityChanged!(value);
       }
     });
+    _saveSelectedValues();
   }
 
   @override
@@ -973,11 +992,11 @@ class CSCPickerState extends State<CSCPicker> {
       dialogRadius: widget.dropdownDialogRadius,
       searchBarRadius: widget.searchBarRadius,
       disabledDecoration: widget.disabledDropdownDecoration,
-      selected: _selectedCity,
+      selected: _selectedCity != widget.cityDropdownLabel
+          ? _selectedCity
+          : widget.cityDropdownLabel,
       label: widget.citySearchPlaceholder,
-      //onChanged: (value) => _onSelectedCity(value),
       onChanged: (value) {
-        //print("cityChanged $value $_selectedCity");
         value != null ? _onSelectedCity(value) : _onSelectedCity(_selectedCity);
       },
     );
@@ -985,7 +1004,10 @@ class CSCPickerState extends State<CSCPicker> {
 
   Widget clearButton() {
     return ElevatedButton(
-      onPressed: () => clearFields(),
+      onPressed: () {
+        clearFields();
+        _clearSelectedValues();
+      },
       child: widget.clearButtonContent,
     );
   }
